@@ -9,7 +9,5 @@ void report_surrounding();
 
 
 
-size_t _self_surrounding(self_surrounding* container, size_t max_count);
-#endif INCLUDE_SURROUNDING_H_
-
-
+size_t _self_surrounding(struct self_surrounding* container, size_t max_count);
+#endif
