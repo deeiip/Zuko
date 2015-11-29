@@ -7,6 +7,9 @@
 
 #ifndef INCLUDE_TYPES_H_
 #define INCLUDE_TYPES_H_
+
+#include "config.h"
+
 #include <stdio.h>
 #include <stdbool.h>
 
@@ -23,4 +26,14 @@ struct self_surrounding{
 	size_t dev_nearby_count;
 };
 
+typedef struct log_buffer{
+	char char_buff[LOG_BUFFER_SIZE];
+	size_t buff_length;
+} log_buffer;
+
+typedef enum {
+	log_type_err,
+	log_type_rep,
+	log_type_verb
+} log_type;
 #endif /* INCLUDE_TYPES_H_ */
