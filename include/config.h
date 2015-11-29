@@ -10,5 +10,16 @@
 
 #define LOG_BUFFER_SIZE 2048
 
+#define LOG_DIRECTORY "/home/dipanjan/.EasyConnect/"
+
+#define LOG_ERR_FILE_NAME "error_log"
+
+#define LOG_VERB_FILE_NAME "verbose_log"
+
+#define LOG_REP_FILE_NAME "report_log"
+
+#define DEBUG
+
+#define OUTER_LISTEN_CHANNEL 3
 
 #endif /* INCLUDE_CONFIG_H_ */

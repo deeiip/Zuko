@@ -35,8 +35,15 @@ size_t _self_surrounding(struct self_surrounding* container, size_t max_count)
 	max_rsp = max_count;
 	flags = IREQ_CACHE_FLUSH;
 	ii = (inquiry_info*)malloc(max_rsp * sizeof(inquiry_info));
+#ifdef DEBUG
+	VER_LOG("Starting hci enquiry");
+#endif
 
 	num_rsp = hci_inquiry(dev_id, len, max_rsp, NULL, &ii, flags);
+
+#ifdef DEBUG
+	VER_LOG("Enquiry finished");
+#endif
 	if( num_rsp < 0 )
 	{
 		ERR_LOG("error when enquiring from device", __FILE__);
