@@ -6,17 +6,23 @@
 C_SRCS += \
 ../src/Surrounding.c \
 ../src/interfaces.c \
-../src/log.c 
+../src/listening.c \
+../src/log.c \
+../src/serviceEP.c 
 
 OBJS += \
 ./src/Surrounding.o \
 ./src/interfaces.o \
-./src/log.o 
+./src/listening.o \
+./src/log.o \
+./src/serviceEP.o 
 
 C_DEPS += \
 ./src/Surrounding.d \
 ./src/interfaces.d \
-./src/log.d 
+./src/listening.d \
+./src/log.d \
+./src/serviceEP.d 
 
 
 # Each subdirectory must supply rules for building sources it contributes
