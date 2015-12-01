@@ -22,4 +22,6 @@
 
 #define OUTER_LISTEN_CHANNEL 3
 
+#define SERVICE_ENDPOINT "/home/dipanjan/.EasyConnect/serv_socket"
+
 #endif /* INCLUDE_CONFIG_H_ */

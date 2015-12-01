@@ -36,4 +36,28 @@ typedef enum {
 	log_type_rep,
 	log_type_verb
 } log_type;
+
+typedef enum{
+	message_type_control,
+	message_type_data,
+	message_type_all
+} message_type;
+
+typedef struct service_endpoint{
+	char* ep_file_path;
+	message_type ep_type;
+
+} service_endpoint;
+
+typedef struct current_endpoint_subscription{
+	service_endpoint** arr;
+	size_t count;
+} current_endpoint_subscription;
+
+// message_type_data assumes data is a file path
+// otherwise data is the message itself
+typedef struct message{
+	message_type typ;
+	const char* data;
+} message;
 #endif /* INCLUDE_TYPES_H_ */
