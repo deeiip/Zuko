@@ -79,18 +79,27 @@ void _create_subscription_socket(const char* socket_path)
 		exit(1);
 	}
 
-	printf("Trying to connect...\n");
-
+	//printf("");
+	REPORT_LOG("Trying to connect...");
 	remote.sun_family = AF_UNIX;
 	strcpy(remote.sun_path, socket_path);
 	len = strlen(remote.sun_path) + sizeof(remote.sun_family);
 	if (connect(s, (struct sockaddr *) &remote, len) == -1) {
-		perror("connect");
-		exit(1);
+		//perror("connect");
+		char buff[128] = {0};
+		strcat(buff, "Could not connect to socket");
+		strcat(buff, remote.sun_path);
+		ERR_LOG(buff, __FILE__);
+		return;
 	}
 
 	printf("Connected.\n");
+	char buff[128] = {0};
+	strcat(buff, "Connected to ");
+	strcat(buff, remote.sun_path);
+	REPORT_LOG(buff);
 
+	// part recv/send. needs complete change
 	while (printf("> "), fgets(str, 100, stdin), !feof(stdin)) {
 		if (send(s, str, strlen(str), 0) == -1) {
 			perror("send");
@@ -108,6 +117,7 @@ void _create_subscription_socket(const char* socket_path)
 			exit(1);
 		}
 	}
+	// part recv/send ends
 
 	close(s);
 }

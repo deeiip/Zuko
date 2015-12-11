@@ -15,8 +15,9 @@
 #include <bluetooth/hci_lib.h>
 
 
-size_t _self_surrounding(struct self_surrounding* container, size_t max_count)
+size_t _self_surrounding(struct self_surrounding** _container, size_t max_count)
 {
+	struct self_surrounding* container = (*_container);
 	inquiry_info *ii = NULL;
 	int max_rsp, num_rsp;
 	int dev_id, sock, len, flags;
