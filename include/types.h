@@ -26,6 +26,9 @@ struct self_surrounding{
 	size_t dev_nearby_count;
 };
 
+
+
+
 typedef struct log_buffer{
 	char char_buff[LOG_BUFFER_SIZE];
 	size_t buff_length;

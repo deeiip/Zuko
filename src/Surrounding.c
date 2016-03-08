@@ -15,8 +15,16 @@
 #include <bluetooth/hci_lib.h>
 
 
+// do not use this shit. There is bug
+void _init_self_surrounding(struct self_surrounding** target, size_t count){
+	struct self_surrounding* current = (*target);
+	current = malloc(sizeof(struct self_surrounding));
+	current->dev_nearby_count = 0;
+	current->dev_nearby = malloc(count*sizeof(struct dev_bluetooth));
+}
 size_t _self_surrounding(struct self_surrounding** _container, size_t max_count)
 {
+
 	struct self_surrounding* container = (*_container);
 	inquiry_info *ii = NULL;
 	int max_rsp, num_rsp;
