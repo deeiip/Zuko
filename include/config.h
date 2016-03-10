@@ -24,4 +24,6 @@
 
 #define SERVICE_ENDPOINT "/home/dipanjan/.EasyConnect/serv_socket"
 
+#define WORKING_DIRECTORY "/home/dipanjan/.EasyConnect/"
+
 #endif /* INCLUDE_CONFIG_H_ */

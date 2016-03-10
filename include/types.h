@@ -13,11 +13,19 @@
 #include <stdio.h>
 #include <stdbool.h>
 
+typedef enum{
+	DEV_BLUETOOTH
+} dev_family;
+
+struct dev_common{
+	dev_family DF;
+	char* address;
+	bool is_gateway;
+};
 
 struct dev_bluetooth {
 	char dev_id[19];
 	char dev_name[248];
-	char proto_id[64]; // 256 bit protocol id
 	bool is_gateway; // connected to internet
 };
 

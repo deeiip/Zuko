@@ -45,9 +45,9 @@ void _start_outer_incoming_port() {
 		char buf[1024] = { 0 };
 		ba2str(&rem_addr.rc_bdaddr, buf);
 		//fprintf(stderr, "accepted connection from %s\n", buf);
-		buff = "accepted connection from ";
-		strcat(buff, buf);
-		REPORT_LOG(buff);
+		char message[256] = "accepted connection from ";
+		strcat(message, buf);
+		REPORT_LOG(message);
 		memset(buf, 0, sizeof(buf));
 
 		// read data from the client
