@@ -13,6 +13,11 @@
 #include <stdio.h>
 #include <stdbool.h>
 
+struct command{
+	char command[128];
+	char argument[256];
+};
+
 typedef enum{
 	DEV_BLUETOOTH
 } dev_family;

@@ -15,6 +15,21 @@
 #include <bluetooth/bluetooth.h>
 #include <bluetooth/rfcomm.h>
 
+// name should be created from the WORKING DIRECTORY macro
+FILE* _open_file(const char* filename)
+{
+	FILE *write_ptr;
+	write_ptr = fopen(filename, "wb");
+	return write_ptr;
+}
+void _write_to_file(FILE* fptr, const char* buffer)
+{
+	fwrite(buffer, sizeof(buffer), 1, fptr);
+}
+void _close_file(FILE* fptr)
+{
+	fclose(fptr);
+}
 void _start_outer_incoming_port() {
 	struct sockaddr_rc loc_addr = { 0 }, rem_addr = { 0 };
 
@@ -49,13 +64,21 @@ void _start_outer_incoming_port() {
 		strcat(message, buf);
 		REPORT_LOG(message);
 		memset(buf, 0, sizeof(buf));
-
 		// read data from the client
-		int bytes_read;
-		bytes_read = read(client, buf, sizeof(buf));
-		if (bytes_read > 0) {
-			printf("received [%s]\n", buf);
+		int init_idx = 0;
+		FILE* file = _open_file("");
+		while(recv(client, buf, 1024, init_idx)>0)
+		{
+			init_idx+=1024;
+			_write_to_file(file, buf);
+			VER_LOG(buf);
 		}
+		_close_file(file);
+		//int bytes_read;
+		//bytes_read = read(client, buf, sizeof(buf));
+		//if (bytes_read > 0) {
+		//	printf("received [%s]\n", buf);
+		//}
 
 		// close connection
 		close(client);
@@ -63,6 +86,7 @@ void _start_outer_incoming_port() {
 	close(s);
 	return;
 }
+
 
 void _process_incoming(char* raw_data)
 {
@@ -73,4 +97,3 @@ void _start_self_endpoint()
 {
 
 }
-

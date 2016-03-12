@@ -34,7 +34,7 @@ long _get_file_buffer(const char* filename, char** _buffer)
 	return filelen;
 }
 
-void _forward_unit(payload* data, const char* _dest)
+void _forward_unit(const char* data, const char* _dest)
 {
 	struct sockaddr_rc addr = { 0 };
 	int s, status;
@@ -54,7 +54,7 @@ void _forward_unit(payload* data, const char* _dest)
 	// send a message
 	if( status == 0 ) {
 		char* buffer = NULL;
-		long f_len = _get_file_buffer((*data).file_path, &buffer);
+		long f_len = _get_file_buffer(data, &buffer);
 		status = write(s, buffer, f_len);
 	}
 
@@ -69,10 +69,10 @@ void _forward_unit(payload* data, const char* _dest)
 	close(s);
 }
 
-void forward(payload data, const char** targets, uint8_t count)
+void forward(const char* data, const char* targets, uint8_t count)
 {
 	for(uint8_t i = 0; i < count; i++){
-		_forward_unit(&data,targets[i]);
+		_forward_unit(&data, (targets+(i*19)));
 	}
 
 }

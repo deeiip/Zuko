@@ -8,5 +8,5 @@
 
 //int forward(payload);
 // send the data and specify a list of addresses to send to
-void forward(payload, const char**, uint8_t);
+void forward(const char*, const char*, uint8_t);
 #endif
