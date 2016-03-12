@@ -1,7 +1,9 @@
 #include "self_start.h"
 #include "log.h"
 #include "config.h"
-
+#include "command_socket.h"
+#include <string.h>
+#include <pthread.h>
 void discover_surrounding()
 {
 	size_t max_size = 10;
@@ -18,27 +20,27 @@ void discover_surrounding()
 	if (f == NULL)
 	{
 		ERR_LOG("Error opening file!", __FILE__);
-	    return;
+		return;
 	}
 	// lets start storing all shit
 	for(int i = 0; i< avl; i++){
-	  struct dev_bluetooth device = *(ret->dev_nearby+i);
-	  fprintf(f, "%s, %s, %d\n", device.dev_id, device.dev_name, device.is_gateway);
+		struct dev_bluetooth device = *(ret->dev_nearby+i);
+		fprintf(f, "%s, %s, %d\n", device.dev_id, device.dev_name, device.is_gateway);
 	}
 	fclose(f);
 	free(surr);
 }
 const char* _getfield(char* line, int num)
 {
-    const char* tok;
-    for (tok = strtok(line, ";");
-            tok && *tok;
-            tok = strtok(NULL, ";\n"))
-    {
-        if (!--num)
-            return tok;
-    }
-    return NULL;
+	const char* tok;
+	for (tok = strtok(line, ";");
+			tok && *tok;
+			tok = strtok(NULL, ";\n"))
+	{
+		if (!--num)
+			return tok;
+	}
+	return NULL;
 }
 void parse_surrounding(const char* filepath)
 {
@@ -79,10 +81,28 @@ void parse_surrounding(const char* filepath)
 
 }
 
+void *thr_func(void *arg)
+{
+	char filepath[258] = WORKING_DIRECTORY;
+	strcat(filepath, "command_socket");
+	_create_command_socket(filepath);
+	pthread_exit(NULL);
+}
 /// create a new thead. In the seperate thread start listening for new connection.
 /// after creation of this thread, main thread should only be used for listening to inner port
 /// and forwarding the message
-void start_listening()
+void start_command_listening()
+{
+	int rc;
+	pthread_t command_thread;
+	if ((rc = pthread_create(&command_thread, NULL, thr_func, NULL))) {
+		ERR_LOG("Could not start command listener", __FILE__);
+		//fprintf(stderr, "error: pthread_create, rc: %d\n", rc);
+		return;
+	}
+}
+
+void register_service_ep()
 {
 
 }

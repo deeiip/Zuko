@@ -3,4 +3,5 @@
 #include "types.h"
 #include "config.h"
 void parse_command_string(const char*);
+void _create_command_socket(const char*);
 #endif

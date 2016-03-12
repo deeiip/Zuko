@@ -9,9 +9,17 @@
 #include "log.h"
 #include "self_start.h"
 #include "forwarding.h"
-#include "data.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <errno.h>
+#include <string.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <sys/un.h>
 #include <stdlib.h>
 #include <string.h>
+#include <fcntl.h> // for open
+#include <unistd.h> // for close
 
 
 /// this functon should be thread safe
@@ -47,4 +55,59 @@ void parse_command_string(const char* arg)
 			discover_surrounding();
 		}
 	}
+}
+void _create_command_socket(const char* filePath)
+{
+	int s, s2, len;
+	socklen_t t;
+	struct sockaddr_un local, remote;
+	char command_str[100];
+
+	if ((s = socket(AF_UNIX, SOCK_STREAM, 0)) == -1) {
+		//perror("socket");
+		ERR_LOG("Can not create command socket", __FILE__);
+		return;
+	}
+
+	local.sun_family = AF_UNIX;
+	strcpy(local.sun_path, filePath);
+	unlink(local.sun_path);
+	len = strlen(local.sun_path) + sizeof(local.sun_family);
+	if (bind(s, (struct sockaddr *)&local, len) == -1) {
+		//perror("bind");
+		char message[128] = "Unsuccessful socket bind to ";
+		strcat(message, local.sun_path);
+		ERR_LOG(message, __FILE__);
+		return;
+	}
+
+	if (listen(s, 5) == -1) {
+		ERR_LOG("Can not start listening on socket", __FILE__);
+		return;
+	}
+
+	for(;;) {
+		int n;
+		//printf("Waiting for a connection...\n");
+		VER_LOG("Waiting for a command");
+		t = sizeof(remote);
+		if ((s2 = accept(s, (struct sockaddr *)&remote, &t)) == -1) {
+			perror("accept");
+			ERR_LOG("Failed to accept a connection", __FILE__);
+			return;
+		}
+		VER_LOG("Accepted command connection successfully");
+
+		n = recv(s2, command_str, 100, 0);
+		if (n < 0)
+		{
+			ERR_LOG("error receiving command", __FILE__);
+			return;
+		}
+		parse_command_string(command_str);
+
+		close(s2);
+	}
+
+	return;
 }
