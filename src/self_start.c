@@ -2,6 +2,8 @@
 #include "log.h"
 #include "config.h"
 #include "command_socket.h"
+#include "serviceEP.h"
+#include "listening.h"
 #include <string.h>
 #include <pthread.h>
 void discover_surrounding()
@@ -102,7 +104,14 @@ void start_command_listening()
 	}
 }
 
-void register_service_ep()
+void register_service_ep(const char* ep_path)
 {
+	char path[258] = WORKING_DIRECTORY;
+	strcat(path, ep_path);
+	_set_endpoint_subscription(ep_path);
+}
 
+void start_message_listening()
+{
+	_start_outer_incoming_port();
 }

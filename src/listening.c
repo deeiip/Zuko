@@ -54,6 +54,7 @@ void _start_outer_incoming_port() {
 	listen(s, 1);
 
 	while (1) {
+		char message_file_path[256];
 		// accept one connection
 		int client;
 		client = accept(s, (struct sockaddr *) &rem_addr, &opt);
@@ -66,7 +67,7 @@ void _start_outer_incoming_port() {
 		memset(buf, 0, sizeof(buf));
 		// read data from the client
 		int init_idx = 0;
-		FILE* file = _open_file("");
+		FILE* file = _open_file(message_file_path);
 		while(recv(client, buf, 1024, init_idx)>0)
 		{
 			init_idx+=1024;
@@ -74,6 +75,7 @@ void _start_outer_incoming_port() {
 			VER_LOG(buf);
 		}
 		_close_file(file);
+		_write_message_to_socket(message_file_path);
 		//int bytes_read;
 		//bytes_read = read(client, buf, sizeof(buf));
 		//if (bytes_read > 0) {

@@ -16,15 +16,15 @@
 #include <sys/mman.h>
 
 
-static current_endpoint_subscription* current_subscribers;
-
-void _init_current_endpoint_subscription(current_endpoint_subscription** arg)
-{
-	(*arg) = malloc(sizeof(current_endpoint_subscription));
-	(*arg)->arr = malloc(sizeof(service_endpoint*));
-	(*arg)->count = 0;
-}
-void _add_endpoint_subscription(current_endpoint_subscription** arg, service_endpoint* ep)
+static char* current_subscriber;
+static int subscriber_socket;
+//void _init_current_endpoint_subscription(current_endpoint_subscription** arg)
+//{
+//	(*arg) = malloc(sizeof(current_endpoint_subscription));
+//	(*arg)->arr = malloc(sizeof(service_endpoint*));
+//	(*arg)->count = 0;
+//}
+void _set_endpoint_subscription( char* path)
 {
 	/*size_t current_idx = (*arg)->count;
 	(*arg)->arr[current_idx]->ep_type = ep.ep_type;
@@ -33,50 +33,55 @@ void _add_endpoint_subscription(current_endpoint_subscription** arg, service_end
 	(*arg)->count++;
 	current_idx++;
 	(*arg)->arr = realloc((current_idx+1)*sizeof(service_endpoint));*/
-	size_t current_idx = (*arg)->count;
-	(*arg)->arr[current_idx] = ep;
-	(*arg)->count++;
-	current_idx++;
-	(*arg)->arr = realloc((*arg)->arr, (current_idx+1)*sizeof(service_endpoint*));
+//	size_t current_idx = (*arg)->count;
+//	(*arg)->arr[current_idx] = ep;
+//	(*arg)->count++;
+//	current_idx++;
+//	(*arg)->arr = realloc((*arg)->arr, (current_idx+1)*sizeof(service_endpoint*));
+	strcpy(current_subscriber, path);
+	subscriber_socket = _create_subscription_socket(current_subscriber);
 }
 
-void _create_subscription_ep(const char* ep_path, message_type m_type)
-{
-	service_endpoint temp;
-	temp.ep_file_path = malloc(strlen(ep_path+1)*sizeof(char));
-	strcpy(temp.ep_file_path, ep_path);
-	temp.ep_type = m_type;
-	if(current_subscribers==NULL)
-	{
-		_init_current_endpoint_subscription(&current_subscribers);
-	}
-	_add_endpoint_subscription(&current_subscribers, &temp);
-}
+//void _create_subscription_ep(const char* ep_path, message_type m_type)
+//{
+//	service_endpoint temp;
+//	temp.ep_file_path = malloc(strlen(ep_path+1)*sizeof(char));
+//	strcpy(temp.ep_file_path, ep_path);
+//	temp.ep_type = m_type;
+//	if(current_subscribers==NULL)
+//	{
+//		_init_current_endpoint_subscription(&current_subscribers);
+//	}
+//	_add_endpoint_subscription(&current_subscribers, &temp);
+//}
 
-void _destroy_current_endpoint_subscription(current_endpoint_subscription** arg)
+void _destroy_current_endpoint_subscription()
 {
 	// destroy all individual endpoint
-	for(size_t i = 0; i < (*arg)->count; i++)
-	{
-		service_endpoint* target = (*arg)->arr[i];
-		free(target);
-	}
-	// destroy subscription itself
-	free(*arg);
+//	for(size_t i = 0; i < (*arg)->count; i++)
+//	{
+//		service_endpoint* target = (*arg)->arr[i];
+//		free(target);
+//	}
+//	// destroy subscription itself
+//	free(*arg);
+	close(subscriber_socket);
+	current_subscriber = NULL;
 }
 
 // it'd create a file socket for the upper level
 // for communication. This function assumes server socket
 // is listening to the socket_path
-void _create_subscription_socket(const char* socket_path)
+int _create_subscription_socket(const char* socket_path)
 {
-	int s, t, len;
+	int s, len;
 	struct sockaddr_un remote;
-	char str[100];
+	//char str[100];
 
 	if ((s = socket(AF_UNIX, SOCK_STREAM, 0)) == -1) {
-		perror("socket");
-		exit(1);
+		//perror("socket");
+		ERR_LOG("Socket creation failed", __FILE__);
+		return -1;
 	}
 
 	//printf("");
@@ -90,65 +95,47 @@ void _create_subscription_socket(const char* socket_path)
 		strcat(buff, "Could not connect to socket");
 		strcat(buff, remote.sun_path);
 		ERR_LOG(buff, __FILE__);
-		return;
+		return -1;
 	}
 
-	printf("Connected.\n");
+	//printf("Connected.\n");
 	char buff[128] = {0};
 	strcat(buff, "Connected to ");
 	strcat(buff, remote.sun_path);
 	REPORT_LOG(buff);
 
 	// part recv/send. needs complete change
-	while (printf("> "), fgets(str, 100, stdin), !feof(stdin)) {
-		if (send(s, str, strlen(str), 0) == -1) {
-			perror("send");
-			exit(1);
-		}
-
-		if ((t = recv(s, str, 100, 0)) > 0) {
-			str[t] = '\0';
-			printf("echo> %s", str);
-		} else {
-			if (t < 0)
-				perror("recv");
-			else
-				printf("Server closed connection\n");
-			exit(1);
-		}
-	}
 	// part recv/send ends
-
-	close(s);
+	return s;
 }
-void _write_file_to_socket(int sockt, const char* filename)
-{
-	int file_d = open(filename, O_RDONLY);
-	struct stat f_stat;
-	fstat(file_d, &f_stat);
-	void* addr = mmap(NULL, f_stat.st_size, PROT_READ, MAP_SHARED, file_d, 0);
-	int status = write(sockt, addr, f_stat.st_size);
-	if(status < 0)
-	{
-		ERR_LOG("Unsuccessful file write to socket", __FILE__);
-	}
-	else
-	{
-		REPORT_LOG("Socket file write successful");
-	}
-}
-void _write_message_to_socket(int sockt, message msg)
+//void _write_file_to_socket(int sockt, const char* filename)
+//{
+//	int file_d = open(filename, O_RDONLY);
+//	struct stat f_stat;
+//	fstat(file_d, &f_stat);
+//	void* addr = mmap(NULL, f_stat.st_size, PROT_READ, MAP_SHARED, file_d, 0);
+//	int status = write(sockt, addr, f_stat.st_size);
+//	if(status < 0)
+//	{
+//		ERR_LOG("Unsuccessful file write to socket", __FILE__);
+//	}
+//	else
+//	{
+//		REPORT_LOG("Socket file write successful");
+//	}
+//}
+void _write_message_to_socket(char* msg)
 {
 	REPORT_LOG("Start processing message");
-	if(msg.typ == message_type_data)
-	{
-		char buff[256] = "Requesting data message at ";
-		strcat(buff, msg.data);
-		REPORT_LOG(buff);
-		_write_file_to_socket(sockt, msg.data);
-		return;
-	}
-	int status = write(sockt, msg.data, (sizeof(char)* (strlen(msg.data)+1)));
+//	if(msg.typ == message_type_data)
+//	{
+//		char buff[256] = "Requesting data message at ";
+//		strcat(buff, msg.data);
+//		REPORT_LOG(buff);
+//		_write_file_to_socket(sockt, msg.data);
+//		return;
+//	}
+	int status = write(subscriber_socket, msg, (sizeof(char)* (strlen(msg)+1)));
 	if(status < 0 )
 	{
 		ERR_LOG("Unsuccessful message write to socket", __FILE__);
