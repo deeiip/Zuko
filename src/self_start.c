@@ -17,7 +17,7 @@ void discover_surrounding()
 	size_t avl = _self_surrounding((struct self_surrounding**)&surr, max_size);
 	struct self_surrounding* ret = (struct self_surrounding*)surr;
 	char filename[248] = WORKING_DIRECTORY;
-	strcpy(filename, "surrounding");
+	strcat(filename, "surrounding");
 	FILE *f = fopen(filename, "w");
 	if (f == NULL)
 	{
@@ -111,7 +111,12 @@ void register_service_ep(const char* ep_path)
 	_set_endpoint_subscription(ep_path);
 }
 
+
 void start_message_listening()
 {
 	_start_outer_incoming_port();
+}
+void exit_loop()
+{
+	FLUSH_ALL_LOG;
 }

@@ -47,7 +47,8 @@ void _start_outer_incoming_port() {
 	bind(s, (struct sockaddr *) &loc_addr, sizeof(loc_addr));
 	char buff[256] = "Bind successful to ";
 	char port[3];
-	itoa(OUTER_LISTEN_CHANNEL, port, 10);
+	sprintf(port, "%d", port);
+	//itoa(OUTER_LISTEN_CHANNEL, port, 10);
 	strcpy(buff, port);
 	REPORT_LOG(buff);
 	// put socket into listening mode

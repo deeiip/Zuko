@@ -9,6 +9,7 @@
 #include "log.h"
 #include "self_start.h"
 #include "forwarding.h"
+#include "serviceEP.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <errno.h>
@@ -22,6 +23,10 @@
 #include <unistd.h> // for close
 
 
+bool valid_fname_format(const char* name)
+{
+	return true;
+}
 /// this functon should be thread safe
 void parse_command_string(const char* arg)
 {
@@ -50,9 +55,15 @@ void parse_command_string(const char* arg)
 			forward(pload, dest, idx);
 
 		}
-		else if(strcmp(token, "scan")==0)
+		else if(strcmp(token, "scan\n")==0)
 		{
 			discover_surrounding();
+		}
+		else{
+			if(valid_fname_format(token))
+			{
+				_set_endpoint_subscription(token);
+			}
 		}
 	}
 }

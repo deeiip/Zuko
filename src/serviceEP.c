@@ -1,6 +1,6 @@
 #include "serviceEP.h"
 #include "log.h"
-
+#include "config.h"
 
 #include <string.h>
 #include <stdio.h>
@@ -24,6 +24,43 @@ static int subscriber_socket;
 //	(*arg)->arr = malloc(sizeof(service_endpoint*));
 //	(*arg)->count = 0;
 //}
+
+int _create_subscription_socket(const char* socket_path)
+{
+	int s, len;
+	struct sockaddr_un remote;
+	//char str[100];
+
+	if ((s = socket(AF_UNIX, SOCK_STREAM, 0)) == -1) {
+		//perror("socket");
+		ERR_LOG("Socket creation failed", __FILE__);
+		return -1;
+	}
+
+	//printf("");
+	REPORT_LOG("Trying to connect...");
+	remote.sun_family = AF_UNIX;
+	strcpy(remote.sun_path, "/home/dipanjan/.EasyConnect/serviceEP");
+	len = strlen(remote.sun_path) + sizeof(remote.sun_family);
+	if (connect(s, (struct sockaddr *) &remote, len) == -1) {
+		//perror("connect");
+		char buff[128] = {0};
+		strcat(buff, "Could not connect to socket");
+		strcat(buff, remote.sun_path);
+		ERR_LOG(buff, __FILE__);
+		return -1;
+	}
+
+	//printf("Connected.\n");
+	char buff[128] = {0};
+	strcat(buff, "Connected to ");
+	strcat(buff, remote.sun_path);
+	REPORT_LOG(buff);
+
+	// part recv/send. needs complete change
+	// part recv/send ends
+	return s;
+}
 void _set_endpoint_subscription( char* path)
 {
 	/*size_t current_idx = (*arg)->count;
@@ -38,7 +75,12 @@ void _set_endpoint_subscription( char* path)
 //	(*arg)->count++;
 //	current_idx++;
 //	(*arg)->arr = realloc((*arg)->arr, (current_idx+1)*sizeof(service_endpoint*));
-	strcpy(current_subscriber, path);
+	size_t req_size = strlen(WORKING_DIRECTORY);
+	req_size += strlen(path);
+	req_size+=1;
+	current_subscriber = malloc(req_size * sizeof(char));
+	strcpy(current_subscriber, WORKING_DIRECTORY);
+	strcat(current_subscriber, path);
 	subscriber_socket = _create_subscription_socket(current_subscriber);
 }
 
@@ -72,42 +114,7 @@ void _destroy_current_endpoint_subscription()
 // it'd create a file socket for the upper level
 // for communication. This function assumes server socket
 // is listening to the socket_path
-int _create_subscription_socket(const char* socket_path)
-{
-	int s, len;
-	struct sockaddr_un remote;
-	//char str[100];
 
-	if ((s = socket(AF_UNIX, SOCK_STREAM, 0)) == -1) {
-		//perror("socket");
-		ERR_LOG("Socket creation failed", __FILE__);
-		return -1;
-	}
-
-	//printf("");
-	REPORT_LOG("Trying to connect...");
-	remote.sun_family = AF_UNIX;
-	strcpy(remote.sun_path, socket_path);
-	len = strlen(remote.sun_path) + sizeof(remote.sun_family);
-	if (connect(s, (struct sockaddr *) &remote, len) == -1) {
-		//perror("connect");
-		char buff[128] = {0};
-		strcat(buff, "Could not connect to socket");
-		strcat(buff, remote.sun_path);
-		ERR_LOG(buff, __FILE__);
-		return -1;
-	}
-
-	//printf("Connected.\n");
-	char buff[128] = {0};
-	strcat(buff, "Connected to ");
-	strcat(buff, remote.sun_path);
-	REPORT_LOG(buff);
-
-	// part recv/send. needs complete change
-	// part recv/send ends
-	return s;
-}
 //void _write_file_to_socket(int sockt, const char* filename)
 //{
 //	int file_d = open(filename, O_RDONLY);
