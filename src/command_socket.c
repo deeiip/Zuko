@@ -115,6 +115,7 @@ void _create_command_socket(const char* filePath)
 			ERR_LOG("error receiving command", __FILE__);
 			return;
 		}
+		command_str[n+1] = '\0';
 		parse_command_string(command_str);
 
 		close(s2);
