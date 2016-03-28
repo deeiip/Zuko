@@ -55,7 +55,7 @@ void parse_command_string(const char* arg)
 			forward(pload, dest, idx);
 
 		}
-		else if(strcmp(token, "scan\n")==0)
+		else if(strcmp(token, "scan")==0)
 		{
 			discover_surrounding();
 		}

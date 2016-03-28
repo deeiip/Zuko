@@ -120,3 +120,9 @@ void exit_loop()
 {
 	FLUSH_ALL_LOG;
 }
+
+void start_loop()
+{
+	start_command_listening();
+	start_message_listening();
+}

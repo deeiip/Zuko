@@ -40,7 +40,7 @@ int _create_subscription_socket(const char* socket_path)
 	//printf("");
 	REPORT_LOG("Trying to connect...");
 	remote.sun_family = AF_UNIX;
-	strcpy(remote.sun_path, "/home/dipanjan/.EasyConnect/serviceEP");
+	strcpy(remote.sun_path, socket_path);
 	len = strlen(remote.sun_path) + sizeof(remote.sun_family);
 	if (connect(s, (struct sockaddr *) &remote, len) == -1) {
 		//perror("connect");
@@ -75,11 +75,9 @@ void _set_endpoint_subscription( char* path)
 //	(*arg)->count++;
 //	current_idx++;
 //	(*arg)->arr = realloc((*arg)->arr, (current_idx+1)*sizeof(service_endpoint*));
-	size_t req_size = strlen(WORKING_DIRECTORY);
-	req_size += strlen(path);
+	size_t req_size = strlen(path);
 	req_size+=1;
 	current_subscriber = malloc(req_size * sizeof(char));
-	strcpy(current_subscriber, WORKING_DIRECTORY);
 	strcat(current_subscriber, path);
 	subscriber_socket = _create_subscription_socket(current_subscriber);
 }
