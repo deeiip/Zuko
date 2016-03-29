@@ -25,42 +25,6 @@ static int subscriber_socket;
 //	(*arg)->count = 0;
 //}
 
-int _create_subscription_socket(const char* socket_path)
-{
-	int s, len;
-	struct sockaddr_un remote;
-	//char str[100];
-
-	if ((s = socket(AF_UNIX, SOCK_STREAM, 0)) == -1) {
-		//perror("socket");
-		ERR_LOG("Socket creation failed", __FILE__);
-		return -1;
-	}
-
-	//printf("");
-	REPORT_LOG("Trying to connect...");
-	remote.sun_family = AF_UNIX;
-	strcpy(remote.sun_path, socket_path);
-	len = strlen(remote.sun_path) + sizeof(remote.sun_family);
-	if (connect(s, (struct sockaddr *) &remote, len) == -1) {
-		//perror("connect");
-		char buff[128] = {0};
-		strcat(buff, "Could not connect to socket");
-		strcat(buff, remote.sun_path);
-		ERR_LOG(buff, __FILE__);
-		return -1;
-	}
-
-	//printf("Connected.\n");
-	char buff[128] = {0};
-	strcat(buff, "Connected to ");
-	strcat(buff, remote.sun_path);
-	REPORT_LOG(buff);
-
-	// part recv/send. needs complete change
-	// part recv/send ends
-	return s;
-}
 void _set_endpoint_subscription( char* path)
 {
 	/*size_t current_idx = (*arg)->count;
@@ -70,16 +34,16 @@ void _set_endpoint_subscription( char* path)
 	(*arg)->count++;
 	current_idx++;
 	(*arg)->arr = realloc((current_idx+1)*sizeof(service_endpoint));*/
-//	size_t current_idx = (*arg)->count;
-//	(*arg)->arr[current_idx] = ep;
-//	(*arg)->count++;
-//	current_idx++;
-//	(*arg)->arr = realloc((*arg)->arr, (current_idx+1)*sizeof(service_endpoint*));
+	//	size_t current_idx = (*arg)->count;
+	//	(*arg)->arr[current_idx] = ep;
+	//	(*arg)->count++;
+	//	current_idx++;
+	//	(*arg)->arr = realloc((*arg)->arr, (current_idx+1)*sizeof(service_endpoint*));
 	size_t req_size = strlen(path);
 	req_size+=1;
 	current_subscriber = malloc(req_size * sizeof(char));
 	strcat(current_subscriber, path);
-	subscriber_socket = _create_subscription_socket(current_subscriber);
+	//subscriber_socket = _create_subscription_socket(current_subscriber);
 }
 
 //void _create_subscription_ep(const char* ep_path, message_type m_type)
@@ -98,13 +62,13 @@ void _set_endpoint_subscription( char* path)
 void _destroy_current_endpoint_subscription()
 {
 	// destroy all individual endpoint
-//	for(size_t i = 0; i < (*arg)->count; i++)
-//	{
-//		service_endpoint* target = (*arg)->arr[i];
-//		free(target);
-//	}
-//	// destroy subscription itself
-//	free(*arg);
+	//	for(size_t i = 0; i < (*arg)->count; i++)
+	//	{
+	//		service_endpoint* target = (*arg)->arr[i];
+	//		free(target);
+	//	}
+	//	// destroy subscription itself
+	//	free(*arg);
 	close(subscriber_socket);
 	current_subscriber = NULL;
 }
@@ -132,14 +96,43 @@ void _destroy_current_endpoint_subscription()
 void _write_message_to_socket(char* msg)
 {
 	REPORT_LOG("Start processing message");
-//	if(msg.typ == message_type_data)
-//	{
-//		char buff[256] = "Requesting data message at ";
-//		strcat(buff, msg.data);
-//		REPORT_LOG(buff);
-//		_write_file_to_socket(sockt, msg.data);
-//		return;
-//	}
+	//	if(msg.typ == message_type_data)
+	//	{
+	//		char buff[256] = "Requesting data message at ";
+	//		strcat(buff, msg.data);
+	//		REPORT_LOG(buff);
+	//		_write_file_to_socket(sockt, msg.data);
+	//		return;
+	//	}
+	int s, len;
+	struct sockaddr_un remote;
+	//char str[100];
+
+	if ((s = socket(AF_UNIX, SOCK_STREAM, 0)) == -1) {
+		//perror("socket");
+		ERR_LOG("Socket creation failed", __FILE__);
+		return;
+	}
+
+	//printf("");
+	REPORT_LOG("Trying to connect...");
+	remote.sun_family = AF_UNIX;
+	strcpy(remote.sun_path, current_subscriber);
+	len = strlen(remote.sun_path) + sizeof(remote.sun_family);
+	if (connect(s, (struct sockaddr *) &remote, len) == -1) {
+		//perror("connect");
+		char buff[128] = {0};
+		strcat(buff, "Could not connect to socket");
+		strcat(buff, remote.sun_path);
+		ERR_LOG(buff, __FILE__);
+		return;
+	}
+
+	//printf("Connected.\n");
+	char buff[128] = {0};
+	strcat(buff, "Connected to ");
+	strcat(buff, remote.sun_path);
+	REPORT_LOG(buff);
 	int status = write(subscriber_socket, msg, (sizeof(char)* (strlen(msg)+1)));
 	if(status < 0 )
 	{

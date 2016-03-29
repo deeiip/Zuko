@@ -31,6 +31,7 @@ void discover_surrounding()
 	}
 	fclose(f);
 	free(surr);
+	_write_message_to_socket(filename);
 }
 const char* _getfield(char* line, int num)
 {

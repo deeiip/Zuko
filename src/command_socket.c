@@ -30,7 +30,9 @@ bool valid_fname_format(const char* name)
 /// this functon should be thread safe
 void parse_command_string(const char* arg)
 {
-	char* token = strtok(arg, " ");
+	// svae_ptr is never freed. MLeak
+	char* save_ptr = malloc(sizeof(char)*1024);
+	char* token = strtok_r(arg, " ", &save_ptr);
 	if(token==NULL)
 	{
 		// invalid command
@@ -41,10 +43,10 @@ void parse_command_string(const char* arg)
 	{
 		if(strcmp(token,"send")==0)
 		{
-			token = strtok(NULL, " ");
+			token = strtok_r(NULL, " ", &save_ptr);
 			char* pload = malloc(128*sizeof(char));
 			strcpy(pload, token);
-			token = strtok(NULL, " ");
+			token = strtok_r(NULL, " ", &save_ptr);
 			char dest[20][19];
 			size_t idx = 0;
 			while(token!=NULL)
@@ -115,11 +117,10 @@ void _create_command_socket(const char* filePath)
 			ERR_LOG("error receiving command", __FILE__);
 			return;
 		}
-		command_str[n+1] = '\0';
+		command_str[n] = '\0';
 		parse_command_string(command_str);
 
 		close(s2);
 	}
-
 	return;
 }

@@ -55,6 +55,7 @@ void _start_outer_incoming_port() {
 	listen(s, 1);
 
 	while (1) {
+		int con;
 		char message_file_path[256];
 		// accept one connection
 		int client;
