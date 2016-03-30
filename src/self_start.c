@@ -25,9 +25,11 @@ void discover_surrounding()
 		return;
 	}
 	// lets start storing all shit
+	fprintf(f, "%d\n", 100);
+	fprintf(f, "%d\n", avl);
 	for(int i = 0; i< avl; i++){
 		struct dev_bluetooth device = *(ret->dev_nearby+i);
-		fprintf(f, "%s, %s, %d\n", device.dev_id, device.dev_name, device.is_gateway);
+		fprintf(f, "%s %s %d\n", device.dev_id, device.dev_name, device.is_gateway);
 	}
 	fclose(f);
 	free(surr);

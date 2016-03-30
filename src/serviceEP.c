@@ -104,44 +104,83 @@ void _write_message_to_socket(char* msg)
 	//		_write_file_to_socket(sockt, msg.data);
 	//		return;
 	//	}
-	int s, len;
-	struct sockaddr_un remote;
-	//char str[100];
+//	int s, len;
+//	struct sockaddr_un remote;
+//	//char str[100];
+//
+//	if ((s = socket(AF_UNIX, SOCK_STREAM, 0)) == -1) {
+//		//perror("socket");
+//		ERR_LOG("Socket creation failed", __FILE__);
+//		return;
+//	}
+//
+//	//printf("");
+//	REPORT_LOG("Trying to connect...");
+//	remote.sun_family = AF_UNIX;
+//	strcpy(remote.sun_path, current_subscriber);
+//	len = strlen(remote.sun_path) + sizeof(remote.sun_family);
+//	if (connect(s, (struct sockaddr *) &remote, len) == -1) {
+//		//perror("connect");
+//		char buff[128] = {0};
+//		strcat(buff, "Could not connect to socket");
+//		strcat(buff, remote.sun_path);
+//		ERR_LOG(buff, __FILE__);
+//		return;
+//	}
+//
+//	//printf("Connected.\n");
+//	char buff[128] = {0};
+//	strcat(buff, "Connected to ");
+//	strcat(buff, remote.sun_path);
+//	REPORT_LOG(buff);
+//	int status = send(subscriber_socket, msg, strlen(msg), 0 );
+//	if(status < 0 )
+//	{
+//		ERR_LOG("Unsuccessful message write to socket", __FILE__);
+//	}
+//	else
+//	{
+//		REPORT_LOG("Socket message write successful");
+//	}
+	int s, t, len;
+	    struct sockaddr_un remote;
+	    char str[100];
 
-	if ((s = socket(AF_UNIX, SOCK_STREAM, 0)) == -1) {
-		//perror("socket");
-		ERR_LOG("Socket creation failed", __FILE__);
-		return;
-	}
+	    if ((s = socket(AF_UNIX, SOCK_STREAM, 0)) == -1) {
+	        perror("socket");
+	        exit(1);
+	    }
 
-	//printf("");
-	REPORT_LOG("Trying to connect...");
-	remote.sun_family = AF_UNIX;
-	strcpy(remote.sun_path, current_subscriber);
-	len = strlen(remote.sun_path) + sizeof(remote.sun_family);
-	if (connect(s, (struct sockaddr *) &remote, len) == -1) {
-		//perror("connect");
-		char buff[128] = {0};
-		strcat(buff, "Could not connect to socket");
-		strcat(buff, remote.sun_path);
-		ERR_LOG(buff, __FILE__);
-		return;
-	}
+	    printf("Trying to connect...\n");
 
-	//printf("Connected.\n");
-	char buff[128] = {0};
-	strcat(buff, "Connected to ");
-	strcat(buff, remote.sun_path);
-	REPORT_LOG(buff);
-	int status = write(subscriber_socket, msg, (sizeof(char)* (strlen(msg)+1)));
-	if(status < 0 )
-	{
-		ERR_LOG("Unsuccessful message write to socket", __FILE__);
-	}
-	else
-	{
-		REPORT_LOG("Socket message write successful");
-	}
+	    remote.sun_family = AF_UNIX;
+	    strcpy(remote.sun_path, current_subscriber);
+	    len = strlen(remote.sun_path) + sizeof(remote.sun_family);
+	    if (connect(s, (struct sockaddr *)&remote, len) == -1) {
+	        perror("connect");
+	        exit(1);
+	    }
+
+	    printf("Connected.\n");
+	    send(s, msg, strlen(msg), 0);
+//	    while(printf("> "), fgets(str, 100, stdin), !feof(stdin)) {
+//	        if (send(s, str, strlen(str), 0) == -1) {
+//	            perror("send");
+//	            exit(1);
+//	        }
+//
+//	        if ((t=recv(s, str, 100, 0)) > 0) {
+//	            str[t] = '\0';
+//	            printf("echo> %s", str);
+//	        } else {
+//	            if (t < 0) perror("recv");
+//	            else printf("Server closed connection\n");
+//	            exit(1);
+//	        }
+//	    }
+
+	    close(s);
+
 }
 
 
